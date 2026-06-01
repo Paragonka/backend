@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}{{ _("Редактировать клиента") }} | Paragonka{% endblock %}
+
+{% block content %}
+<div class="max-w-lg mx-auto">
+    <h1 class="text-2xl font-bold text-slate-800 mb-6">{{ _("Редактировать клиента") }}</h1>
+
+    <form method="post" action="/app/{{ org_id }}/clients/{{ client.id }}/edit" class="card bg-white/60 backdrop-blur-sm shadow-sm border border-slate-200">
+        <div class="card-body space-y-4">
+            <div>
+                <label class="label"><span class="label-text">{{ _("Имя") }} *</span></label>
+                <input type="text" name="name" required class="input input-bordered w-full" value="{{ client.name }}">
+            </div>
+            <div>
+                <label class="label"><span class="label-text">{{ _("Фамилия") }}</span></label>
+                <input type="text" name="surname" class="input input-bordered w-full" value="{{ client.surname }}">
+            </div>
+            <div>
+                <label class="label"><span class="label-text">{{ _("Телефон") }}</span></label>
+                <input type="text" name="phone" class="input input-bordered w-full" value="{{ client.phone }}">
+            </div>
+            <div>
+                <label class="label"><span class="label-text">{{ _("Заметки") }}</span></label>
+                <textarea name="notes" class="textarea textarea-bordered w-full" rows="3">{{ client.notes }}</textarea>
+            </div>
+            {% include "components/local_fields.html" %}
+            <div class="flex gap-2 pt-2">
+                <button type="submit" class="btn btn-primary">{{ _("Сохранить") }}</button>
+                <a href="/app/{{ org_id }}/clients" class="btn btn-ghost">{{ _("Отмена") }}</a>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}

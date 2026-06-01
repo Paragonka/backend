@@ -1,0 +1,66 @@
+<div class="card bg-white/60 backdrop-blur-sm shadow-sm border border-slate-200 mb-4">
+    <div class="card-body p-4">
+        <div class="grid grid-cols-12 gap-3 items-end" id="filter-form">
+            {% for field in filter_fields %}
+            <div class="{% if field.type == 'text' %}col-span-3{% elif field.type == 'select' %}col-span-2{% else %}col-span-2{% endif %}">
+                <label class="label py-1"><span class="label-text text-xs">{{ _(field.label) }}</span></label>
+                {% if field.type == 'text' %}
+                <input type="text"
+                       class="input input-bordered input-sm w-full"
+                        placeholder="{{ _(field.placeholder) if field.placeholder else '' }}"
+                       name="filter[{{ field.name }}]"
+                       value="{{ current_filters.get(field.name, '') }}"
+                       hx-get="{{ request.url.path }}"
+                       hx-target="#list-table-container"
+                       hx-trigger="keyup changed delay:500ms"
+                       hx-include="#filter-form">
+                {% elif field.type == 'select' %}
+                <select class="select select-bordered select-sm w-full"
+                        name="filter[{{ field.name }}]"
+                        hx-get="{{ request.url.path }}"
+                        hx-target="#list-table-container"
+                        hx-trigger="change"
+                        hx-include="#filter-form">
+                    <option value="">{{ _(field.placeholder) if field.placeholder else _("Все") }}</option>
+                    {% for opt in field.options | default([]) %}
+                    <option value="{{ opt.value }}" {% if current_filters.get(field.name) == opt.value %}selected{% endif %}>{{ _(opt.label) }}</option>
+                    {% endfor %}
+                </select>
+                {% elif field.type == 'date' %}
+                <input type="date"
+                       class="input input-bordered input-sm w-full"
+                       name="filter[{{ field.name }}]"
+                       value="{{ current_filters.get(field.name, '') }}"
+                       hx-get="{{ request.url.path }}"
+                       hx-target="#list-table-container"
+                       hx-trigger="change"
+                       hx-include="#filter-form">
+                {% endif %}
+            </div>
+            {% endfor %}
+
+            {% if eav_attributes is defined %}
+            {% for attr in eav_attributes | default([]) %}
+            <div class="col-span-2">
+                <label class="label py-1"><span class="label-text text-xs">{{ attr.name }}</span></label>
+                <input type="text"
+                       class="input input-bordered input-sm w-full"
+                       placeholder="{{ attr.name }}"
+                       name="eav[{{ attr.code }}]"
+                       value="{{ current_eav.get(attr.code, '') }}"
+                       hx-get="{{ request.url.path }}"
+                       hx-target="#list-table-container"
+                       hx-trigger="keyup changed delay:500ms"
+                       hx-include="#filter-form">
+            </div>
+            {% endfor %}
+            {% endif %}
+
+            <div class="col-span-1 flex gap-2 items-end pb-1">
+                <a href="{{ request.url.path }}" class="btn btn-ghost btn-xs" title="{{ _("Очистить фильтры") }}">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

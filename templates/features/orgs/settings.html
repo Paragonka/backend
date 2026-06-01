@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+
+{% block title %}{{ _("Настройки") }} | {{ org.name }} | Paragonka{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto">
+    <div class="flex items-center gap-3 mb-6">
+        <a href="/app/{{ org_id }}/dashboard" class="btn btn-ghost btn-sm">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+            {{ _("Дашборд") }}
+        </a>
+        <h1 class="text-2xl font-bold text-slate-800">{{ _("Настройки") }}</h1>
+    </div>
+
+    <div class="card bg-white/60 backdrop-blur-sm shadow-sm border border-slate-200">
+        <div class="card-body">
+            <h2 class="card-title text-lg mb-4">{{ _("Основные настройки") }}</h2>
+
+            <form hx-post="/app/{{ org_id }}/settings/update"
+                  hx-target="#settings-message"
+                  hx-swap="innerHTML"
+                  class="space-y-4">
+
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text">{{ _("Валюта по умолчанию") }}</span>
+                    </label>
+                    <select name="currency" class="select select-bordered w-full max-w-xs">
+                        <option value="PLN" {% if settings.currency == 'PLN' %}selected{% endif %}>PLN — Польский злотый</option>
+                        <option value="EUR" {% if settings.currency == 'EUR' %}selected{% endif %}>EUR — Евро</option>
+                        <option value="USD" {% if settings.currency == 'USD' %}selected{% endif %}>USD — Доллар США</option>
+                        <option value="RUB" {% if settings.currency == 'RUB' %}selected{% endif %}>RUB — Российский рубль</option>
+                        <option value="UAH" {% if settings.currency == 'UAH' %}selected{% endif %}>UAH — Украинская гривна</option>
+                        <option value="GBP" {% if settings.currency == 'GBP' %}selected{% endif %}>GBP — Фунт стерлингов</option>
+                        <option value="CZK" {% if settings.currency == 'CZK' %}selected{% endif %}>CZK — Чешская крона</option>
+                    </select>
+                    <label class="label">
+                        <span class="label-text-alt text-slate-400">{{ _("Валюта, используемая для отображения цен в заказах, продуктах и отчётах") }}</span>
+                    </label>
+                </div>
+
+                <div id="settings-message"></div>
+
+                <div class="card-actions justify-end">
+                    <button type="submit" class="btn btn-primary">
+                        {{ _("Сохранить") }}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card bg-white/60 backdrop-blur-sm shadow-sm border border-slate-200">
+        <div class="card-body">
+            <h2 class="card-title text-lg mb-2">{{ _("Информация об организации") }}</h2>
+            <div class="overflow-x-auto">
+                <table class="table table-sm">
+                    <tbody>
+                        <tr>
+                            <td class="font-medium">{{ _("Название") }}</td>
+                            <td>{{ org.name }}</td>
+                        </tr>
+                        <tr>
+                            <td class="font-medium">{{ _("Часовой пояс") }}</td>
+                            <td>{{ org.timezone }}</td>
+                        </tr>
+                        <tr>
+                            <td class="font-medium">{{ _("Валюта") }}</td>
+                            <td>{{ settings.currency }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="card bg-white/60 backdrop-blur-sm shadow-sm border border-slate-200 mt-6">
+        <div class="card-body">
+            <h2 class="card-title text-lg mb-4">{{ _("Название организации") }}</h2>
+            <form method="post" action="/app/{{ org_id }}/settings/rename" class="flex flex-wrap items-end gap-3">
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text">{{ _("Новое название") }}</span>
+                    </label>
+                    <input type="text" name="name" value="{{ org.name }}"
+                           required maxlength="255"
+                           class="input input-bordered w-full max-w-xs">
+                </div>
+                <button type="submit" class="btn btn-primary">{{ _("Сохранить") }}</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="card bg-error/5 border-error/30 border mt-6">
+        <div class="card-body">
+            <h2 class="card-title text-lg text-error mb-2">{{ _("Опасная зона") }}</h2>
+            <p class="text-sm text-slate-600 mb-4">
+                {{ _("Удаление организации необратимо: все клиенты, товары, заказы, чеки и настройки будут удалены без возможности восстановления.") }}
+            </p>
+            {% if request.query_params.get("delete_error") %}
+            <div class="alert alert-error mb-4 text-sm">
+                {{ _("Ошибка: введённое название не совпадает. Организация не удалена.") }}
+            </div>
+            {% endif %}
+            <form method="post" action="/app/{{ org_id }}/settings/delete" class="flex flex-wrap items-end gap-3"
+                  onsubmit="return confirm('{{ _("Вы уверены? Это действие необратимо.") }}')">
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text">{{ _("Введите название организации «%s», чтобы подтвердить удаление") % org.name }}</span>
+                    </label>
+                    <input type="text" name="name" required autocomplete="off"
+                           class="input input-bordered w-full max-w-xs"
+                           placeholder="{{ org.name }}">
+                </div>
+                <button type="submit" class="btn btn-error">{{ _("Удалить организацию") }}</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

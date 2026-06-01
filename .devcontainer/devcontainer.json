@@ -1,0 +1,44 @@
+{
+  "name": "Paragonka CRM Dev",
+  "build": {
+    "dockerfile": "../Dockerfile",
+    "args": {
+      "PORT": "8000"
+    }
+  },
+  "forwardPorts": [8000, 5432],
+  "postCreateCommand": "uv sync && python build_css.py",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "charliermarsh.ruff",
+        "tamasfe.even-better-toml"
+      ],
+      "settings": {
+        "python.defaultInterpreterPath": "/app/.venv/bin/python",
+        "python.terminal.activateEnvironment": true,
+        "python.terminal.activateEnvInCurrentTerminal": true,
+        "ruff.enable": true,
+        "ruff.format.args": ["--line-length=88"],
+        "[python]": {
+          "editor.formatOnSave": true,
+          "editor.defaultFormatter": "charliermarsh.ruff",
+          "editor.codeActionsOnSave": {
+            "source.organizeImports.ruff": "explicit"
+          }
+        }
+      }
+    }
+  },
+  "containerEnv": {
+    "ENVIRONMENT": "development",
+    "LOG_LEVEL": "DEBUG",
+    "DATABASE_URL": "postgresql+asyncpg://user:password@host.docker.internal:5432/paragonka_db",
+    "SECRET_KEY": "dev-secret-key-change-in-production",
+    "HOST": "0.0.0.0",
+    "PORT": "8000"
+  },
+  "runArgs": ["--add-host=host.docker.internal:host-gateway"]
+}

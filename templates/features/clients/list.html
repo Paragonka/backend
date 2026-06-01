@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+
+{% block title %}{{ _("Клиенты") }} | Paragonka{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <div class="flex items-center justify-between mb-6">
+        <h1 class="text-2xl font-bold text-slate-800">{{ _("Клиенты") }}</h1>
+        <div class="flex gap-2">
+            <button class="btn btn-primary btn-sm" onclick="document.getElementById('create-modal').showModal()">
+                + {{ _("Добавить клиента") }}
+            </button>
+            {% if feature_csv %}
+            <a href="/app/{{ org_id }}/clients/import" class="btn btn-outline btn-sm">
+                {{ _("Импорт CSV") }}
+            </a>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if filter_fields %}
+    {% include "components/filter.html" %}
+    {% endif %}
+
+    <div id="list-table-container">
+        {% if clients %}
+        <div class="overflow-x-auto">
+            <table class="table table-zebra bg-white/60 backdrop-blur-sm shadow-sm border border-slate-200 rounded-box">
+                <thead>
+                    <tr>
+                        <th>{{ _("Имя") }}</th>
+                        <th>{{ _("Фамилия") }}</th>
+                        <th>{{ _("Телефон") }}</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for client in clients %}
+                    <tr>
+                        <td class="font-medium"><a href="/app/{{ org_id }}/clients/{{ client.id }}" class="hover:text-primary transition-colors">{{ client.name }}</a></td>
+                        <td>{{ client.surname }}</td>
+                        <td>{{ client.phone }}</td>
+                        <td class="flex gap-1">
+                            <button class="btn btn-ghost btn-xs"
+                                    hx-get="/app/{{ org_id }}/clients/{{ client.id }}/edit-form"
+                                    hx-target="#edit-modal-body"
+                                    hx-trigger="click"
+                                    onclick="document.getElementById('edit-modal').showModal()">
+                                {{ _("Редактировать") }}
+                            </button>
+                            <form method="post" action="/app/{{ org_id }}/clients/{{ client.id }}/delete" style="display:inline">
+                                <button class="btn btn-ghost btn-xs text-error" onclick="return confirm('{{ _("Удалить клиента?") }}')">
+                                    {{ _("Удалить") }}
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% if next_cursor %}
+            <div class="text-center mt-4">
+                <button class="btn btn-outline btn-sm"
+                        hx-get="/app/{{ org_id }}/clients?cursor={{ next_cursor }}&limit=50"
+                        hx-target="#list-table-container"
+                        hx-swap="outerHTML">
+                    {{ _("Загрузить ещё") }}
+                </button>
+            </div>
+            {% endif %}
+        </div>
+        {% else %}
+        <div class="card bg-white/60 backdrop-blur-sm shadow-sm border border-slate-200">
+            <div class="card-body items-center text-center py-12">
+                <p class="text-slate-400 mb-4">{{ _("Нет клиентов") }}</p>
+                <button class="btn btn-primary btn-sm" onclick="document.getElementById('create-modal').showModal()">
+                    {{ _("Добавить первого клиента") }}
+                </button>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<dialog id="edit-modal" class="modal">
+    <div class="modal-box max-w-lg">
+        <form method="dialog">
+            <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+        </form>
+        <h3 class="font-bold text-lg mb-4">{{ _("Редактировать клиента") }}</h3>
+        <div id="edit-modal-body"></div>
+    </div>
+    <form method="dialog" class="modal-backdrop">
+        <button>close</button>
+    </form>
+</dialog>
+
+<dialog id="create-modal" class="modal">
+    <div class="modal-box max-w-lg">
+        <form method="dialog">
+            <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+        </form>
+        <h3 class="font-bold text-lg mb-4">{{ _("Новый клиент") }}</h3>
+        <form method="post" action="/app/{{ org_id }}/clients/create" class="space-y-4">
+            <div>
+                <label class="label"><span class="label-text">{{ _("Имя") }} *</span></label>
+                <input type="text" name="name" required class="input input-bordered w-full" placeholder="{{ _("Иван") }}">
+            </div>
+            <div>
+                <label class="label"><span class="label-text">{{ _("Фамилия") }}</span></label>
+                <input type="text" name="surname" class="input input-bordered w-full" placeholder="{{ _("Петров") }}">
+            </div>
+            <div>
+                <label class="label"><span class="label-text">{{ _("Телефон") }}</span></label>
+                <input type="text" name="phone" class="input input-bordered w-full" placeholder="{{ _("+7 (999) 123-45-67") }}">
+            </div>
+            <div>
+                <label class="label"><span class="label-text">{{ _("Заметки") }}</span></label>
+                <textarea name="notes" class="textarea textarea-bordered w-full" rows="3"></textarea>
+            </div>
+            <div class="flex gap-2 pt-2">
+                <button type="submit" class="btn btn-primary">{{ _("Создать") }}</button>
+                <button type="button" class="btn btn-ghost" onclick="document.getElementById('create-modal').close()">{{ _("Отмена") }}</button>
+            </div>
+        </form>
+    </div>
+    <form method="dialog" class="modal-backdrop">
+        <button>close</button>
+    </form>
+</dialog>
+{% endblock %}

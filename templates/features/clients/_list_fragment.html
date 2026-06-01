@@ -1,0 +1,56 @@
+<div id="list-table-container" class="overflow-x-auto">
+    {% if clients %}
+    <table class="table table-zebra bg-white/60 backdrop-blur-sm shadow-sm border border-slate-200 rounded-box">
+        <thead>
+            <tr>
+                <th>{{ _("Имя") }}</th>
+                <th>{{ _("Фамилия") }}</th>
+                <th>{{ _("Телефон") }}</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for client in clients %}
+            <tr>
+                <td class="font-medium">{{ client.name }}</td>
+                <td>{{ client.surname }}</td>
+                <td>{{ client.phone }}</td>
+                <td class="flex gap-1">
+                    <button class="btn btn-ghost btn-xs"
+                            hx-get="/app/{{ org_id }}/clients/{{ client.id }}/edit-form"
+                            hx-target="#edit-modal-body"
+                            hx-trigger="click"
+                            onclick="document.getElementById('edit-modal').showModal()">
+                        {{ _("Редактировать") }}
+                    </button>
+                    <form method="post" action="/app/{{ org_id }}/clients/{{ client.id }}/delete" style="display:inline">
+                        <button class="btn btn-ghost btn-xs text-error" onclick="return confirm('{{ _("Удалить клиента?") }}')">
+                            {{ _("Удалить") }}
+                        </button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% if next_cursor %}
+    <div class="text-center mt-4">
+        <button class="btn btn-outline btn-sm"
+                hx-get="{{ request.url.path }}?cursor={{ next_cursor }}&limit=50"
+                hx-target="#list-table-container"
+                hx-swap="outerHTML">
+            {{ _("Загрузить ещё") }}
+        </button>
+    </div>
+    {% endif %}
+    {% else %}
+    <div class="card bg-white/60 backdrop-blur-sm shadow-sm border border-slate-200">
+        <div class="card-body items-center text-center py-12">
+            <p class="text-slate-400 mb-4">{{ _("Нет клиентов") }}</p>
+            <button class="btn btn-primary btn-sm" onclick="document.getElementById('create-modal').showModal()">
+                {{ _("Добавить первого клиента") }}
+            </button>
+        </div>
+    </div>
+    {% endif %}
+</div>

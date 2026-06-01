@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+
+{% block title %}{{ _("Новый чек") }} | Paragonka{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+    <h1 class="text-2xl font-bold text-slate-800 mb-6">{{ _("Новый чек") }}</h1>
+
+    <form method="post" action="/app/{{ org_id }}/receipts/create" class="card bg-white/60 backdrop-blur-sm shadow-sm border border-slate-200">
+        <div class="card-body space-y-4">
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="label"><span class="label-text">{{ _("Клиент") }}</span></label>
+                    <select name="client_id" class="select select-bordered w-full">
+                        <option value="">{{ _("Без клиента") }}</option>
+                        {% for client in clients %}
+                        <option value="{{ client.id }}">{{ client.name }} {{ client.surname }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label class="label"><span class="label-text">{{ _("Заказ") }}</span></label>
+                    <select name="order_id" class="select select-bordered w-full">
+                        <option value="">{{ _("Без заказа") }}</option>
+                        {% for order in orders %}
+                        <option value="{{ order.id }}">{{ order.id | string | truncate(8, true, '') }} — {{ order.total }} ₽</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="label"><span class="label-text">{{ _("Дата и время") }}</span></label>
+                    <input type="datetime-local" name="receipt_date" class="input input-bordered w-full">
+                </div>
+                <div>
+                    <label class="label"><span class="label-text">{{ _("Источник") }}</span></label>
+                    <input type="text" name="source" class="input input-bordered w-full" placeholder="manual, biedronka...">
+                </div>
+            </div>
+            <div>
+                <label class="label"><span class="label-text">{{ _("Заметки") }}</span></label>
+                <textarea name="notes" class="textarea textarea-bordered w-full" rows="2"></textarea>
+            </div>
+
+            <div class="divider">{{ _("Позиции чека") }}</div>
+
+            <div id="items">
+                <div class="grid grid-cols-12 gap-2 items-end mb-2 item-row">
+                    <div class="col-span-4">
+                        <label class="label"><span class="label-text">{{ _("Товар") }}</span></label>
+                        <select name="product_id" class="select select-bordered w-full select-sm product-select">
+                            <option value="">—</option>
+                            {% for p in products %}
+                            <option value="{{ p.id }}" data-price="{{ p.price }}">{{ p.name }} ({{ p.price }} ₽)</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-span-3">
+                        <label class="label"><span class="label-text">{{ _("Название") }}</span></label>
+                        <input type="text" name="item_name" class="input input-bordered w-full input-sm" placeholder="{{ _("Как в чеке") }}">
+                    </div>
+                    <div class="col-span-3">
+                        <label class="label"><span class="label-text">{{ _("Цена") }}</span></label>
+                        <input type="number" step="0.01" name="item_price" class="input input-bordered w-full input-sm" value="0">
+                    </div>
+                    <div class="col-span-2">
+                        <label class="label"><span class="label-text">{{ _("Кол-во") }}</span></label>
+                        <input type="number" step="0.01" name="item_qty" class="input input-bordered w-full input-sm" value="1">
+                    </div>
+                </div>
+            </div>
+
+            <button type="button" class="btn btn-ghost btn-sm" onclick="addItemRow()">+ {{ _("Ещё позиция") }}</button>
+
+            <div class="flex gap-2 pt-2">
+                <button type="submit" class="btn btn-primary">{{ _("Создать чек") }}</button>
+                <a href="/app/{{ org_id }}/receipts" class="btn btn-ghost">{{ _("Отмена") }}</a>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+document.addEventListener('change', function(e) {
+    if (e.target.classList.contains('product-select')) {
+        const row = e.target.closest('.item-row');
+        const opt = e.target.options[e.target.selectedIndex];
+        if (opt.value) {
+            row.querySelector('[name="item_price"]').value = opt.dataset.price;
+            row.querySelector('[name="item_name"]').value = opt.text.split(' (')[0];
+        }
+    }
+});
+
+let itemCounter = 1;
+function addItemRow() {
+    const container = document.getElementById('items');
+    const template = container.querySelector('.item-row');
+    const clone = template.cloneNode(true);
+    clone.querySelectorAll('[name]').forEach(el => {
+        if (el.type !== 'hidden') el.value = el.name === 'item_qty' ? '1' : '';
+    });
+    container.appendChild(clone);
+}
+</script>
+{% endblock %}

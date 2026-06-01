@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block title %}{{ client.name }} {{ client.surname }} | Paragonka{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto">
+    <div class="flex items-center justify-between mb-6">
+        <h1 class="text-2xl font-bold text-slate-800">{{ client.name }} {{ client.surname }}</h1>
+        <div class="flex gap-2">
+            <a href="/app/{{ org_id }}/clients" class="btn btn-ghost btn-sm">← {{ _("Назад") }}</a>
+            <a href="/app/{{ org_id }}/clients/{{ client.id }}/edit" class="btn btn-primary btn-sm btn-outline">{{ _("Редактировать") }}</a>
+        </div>
+    </div>
+
+    <div class="card bg-white/60 backdrop-blur-sm shadow-sm border border-slate-200 mb-4">
+        <div class="card-body">
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <span class="text-sm text-slate-400">{{ _("Имя") }}</span>
+                    <p class="font-medium">{{ client.name }}</p>
+                </div>
+                <div>
+                    <span class="text-sm text-slate-400">{{ _("Фамилия") }}</span>
+                    <p class="font-medium">{{ client.surname }}</p>
+                </div>
+                <div>
+                    <span class="text-sm text-slate-400">{{ _("Телефон") }}</span>
+                    <p>{{ client.phone or '—' }}</p>
+                </div>
+                <div>
+                    <span class="text-sm text-slate-400">{{ _("Заметки") }}</span>
+                    <p>{{ client.notes or '—' }}</p>
+                </div>
+                {% if client.created_at %}
+                <div>
+                    <span class="text-sm text-slate-400">{{ _("Создан") }}</span>
+                    <p class="text-sm">{{ client.created_at.strftime('%d.%m.%Y %H:%M') }}</p>
+                </div>
+                {% endif %}
+                {% if client.updated_at %}
+                <div>
+                    <span class="text-sm text-slate-400">{{ _("Обновлён") }}</span>
+                    <p class="text-sm">{{ client.updated_at.strftime('%d.%m.%Y %H:%M') }}</p>
+                </div>
+                {% endif %}
+            </div>
+            {% if client.local_fields and client.local_fields | length %}
+            <div class="divider">{{ _("Дополнительные поля") }}</div>
+            <div class="grid grid-cols-2 gap-3 text-sm">
+                {% for key, value in client.local_fields.items() %}
+                <div>
+                    <span class="text-slate-400">{{ key }}</span>
+                    <p>{{ value }}</p>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            {% if client.photos and client.photos | length %}
+            <div class="divider">{{ _("Фотографии") }}</div>
+            <div class="grid grid-cols-5 gap-2">
+                {% for photo in client.photos %}
+                <img src="/api/v1/media/{{ photo }}?org_id={{ org_id }}" class="w-full h-20 object-cover rounded-lg border">
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="card bg-white/60 backdrop-blur-sm shadow-sm border border-slate-200">
+        <div class="card-body">
+            <h2 class="card-title text-lg mb-2">{{ _("Заказы клиента") }}</h2>
+            {% if orders %}
+            <table class="table table-sm">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>{{ _("Статус") }}</th>
+                        <th>{{ _("Сумма") }}</th>
+                        <th>{{ _("Дата исполнения") }}</th>
+                        <th>{{ _("Создан") }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in orders %}
+                    <tr>
+                        <td><a href="/app/{{ org_id }}/orders/{{ order.id }}" class="text-primary hover:underline">{{ order.id | string | truncate(8, true, '') }}</a></td>
+                        <td>
+                            <span class="badge badge-sm {% if order.status == 'done' %}badge-success{% elif order.status == 'cancelled' %}badge-error{% elif order.status == 'confirmed' %}badge-info{% else %}badge-ghost{% endif %}">
+                                {{ order.status }}
+                            </span>
+                        </td>
+                        <td>{{ order.total }} ₽</td>
+                        <td>{{ order.execution_date or '—' }}</td>
+                        <td class="text-xs text-slate-400">{{ order.created_at.strftime('%d.%m.%Y %H:%M') if order.created_at else '—' }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p class="text-sm text-slate-400 text-center py-4">{{ _("Нет заказов") }}</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

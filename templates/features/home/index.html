@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block title %}{{ _("Главная") }} | Paragonka{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <div class="hero bg-white/60 backdrop-blur-sm rounded-2xl shadow-sm border border-slate-200 p-8 lg:p-12">
+        <div class="hero-content text-center">
+            <div class="max-w-lg">
+                <h1 class="text-4xl font-bold text-slate-800 mb-4">
+                    {{ _("Добро пожаловать в") }} <span class="text-primary">P</span>aragonka
+                </h1>
+                <p class="text-slate-500 mb-6">
+                    {{ _("Современная CRM для вашего бизнеса. Управляйте клиентами, заказами и финансами в одном месте.") }}
+                </p>
+                <div class="flex gap-3 justify-center flex-wrap">
+                    {% if is_authenticated %}
+                    <a href="/app/orgs/select" class="btn btn-primary">{{ _("Перейти в организации") }}</a>
+                    {% else %}
+                    <a href="/app/auth/register" class="btn btn-primary">{{ _("Начать работу") }}</a>
+                    <a href="/app/auth/login" class="btn btn-outline">{{ _("Войти") }}</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid md:grid-cols-3 gap-6 mt-8">
+        <div class="card bg-white/60 backdrop-blur-sm shadow-sm border border-slate-200 hover:shadow-md transition-shadow">
+            <div class="card-body items-center text-center">
+                <div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-3">
+                    <svg class="w-6 h-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                </div>
+                <h2 class="card-title text-slate-800">{{ _("Клиенты") }}</h2>
+                <p class="text-sm text-slate-400">{{ _("Ведите базу клиентов с историей заказов и заметками") }}</p>
+            </div>
+        </div>
+        <div class="card bg-white/60 backdrop-blur-sm shadow-sm border border-slate-200 hover:shadow-md transition-shadow">
+            <div class="card-body items-center text-center">
+                <div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-3">
+                    <svg class="w-6 h-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
+                </div>
+                <h2 class="card-title text-slate-800">{{ _("Заказы") }}</h2>
+                <p class="text-sm text-slate-400">{{ _("Создавайте заказы с нестандартными позициями") }}</p>
+            </div>
+        </div>
+        <div class="card bg-white/60 backdrop-blur-sm shadow-sm border border-slate-200 hover:shadow-md transition-shadow">
+            <div class="card-body items-center text-center">
+                <div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-3">
+                    <svg class="w-6 h-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                </div>
+                <h2 class="card-title text-slate-800">{{ _("Финансы") }}</h2>
+                <p class="text-sm text-slate-400">{{ _("Аналитика доходов и расходов с красивыми графиками") }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

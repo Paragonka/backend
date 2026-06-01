@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block title %}{{ _("Регистрация") }} | Paragonka{% endblock %}
+
+{% block content %}
+<div class="min-h-[80vh] flex items-center justify-center">
+    <div class="card w-full max-w-md bg-white/60 backdrop-blur-sm shadow-sm border border-slate-200">
+        <div class="card-body p-8">
+            <h1 class="text-2xl font-bold text-center text-slate-800 mb-2">{{ _("Регистрация") }}</h1>
+            <p class="text-center text-slate-400 text-sm mb-6">{{ _("Создайте новый аккаунт") }}</p>
+
+            {% if error %}
+            <div class="alert alert-error mb-4 text-sm">{{ error }}</div>
+            {% endif %}
+
+            <form method="POST" action="/app/auth/register" class="space-y-4">
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text">{{ _("Имя") }}</span>
+                    </label>
+                    <input type="text" name="full_name" class="input input-bordered w-full" placeholder="{{ _("Иван Иванов") }}" required />
+                </div>
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text">Email</span>
+                    </label>
+                    <input type="email" name="email" class="input input-bordered w-full" placeholder="email@example.com" required />
+                </div>
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text">{{ _("Пароль") }}</span>
+                    </label>
+                    <input type="password" name="password" class="input input-bordered w-full" placeholder="••••••••" minlength="8" required />
+                </div>
+                <div class="form-control">
+                    <label class="label cursor-pointer justify-start gap-3">
+                        <input type="checkbox" name="consent" class="checkbox checkbox-sm" required />
+                        <span class="label-text text-sm">
+                            {{ _("Я принимаю") }}
+                            <a href="/terms" class="text-primary hover:underline" target="_blank">{{ _("условия использования") }}</a>
+                            {{ _("и") }}
+                            <a href="/privacy" class="text-primary hover:underline" target="_blank">{{ _("политику конфиденциальности") }}</a>
+                        </span>
+                    </label>
+                </div>
+                <button type="submit" class="btn btn-primary w-full">{{ _("Зарегистрироваться") }}</button>
+            </form>
+
+            <p class="text-center text-sm text-slate-400 mt-4">
+                {{ _("Уже есть аккаунт?") }} <a href="/app/auth/login" class="text-primary hover:underline">{{ _("Войти") }}</a>
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

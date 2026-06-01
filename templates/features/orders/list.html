@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block title %}{{ _("Заказы") }} | Paragonka{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto">
+    <div class="flex items-center justify-between mb-6">
+        <h1 class="text-2xl font-bold text-slate-800">{{ _("Заказы") }}</h1>
+        <a href="/app/{{ org_id }}/orders/create" class="btn btn-primary btn-sm">
+            + {{ _("Новый заказ") }}
+        </a>
+    </div>
+
+    {% if filter_fields %}
+    {% include "components/filter.html" %}
+    {% endif %}
+
+    <div id="list-table-container">
+        {% if orders %}
+        <div class="overflow-x-auto">
+            <table class="table table-zebra bg-white/60 backdrop-blur-sm shadow-sm border border-slate-200 rounded-box">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>{{ _("Статус") }}</th>
+                        <th>{{ _("Сумма") }}</th>
+                        <th>{{ _("Дата исполнения") }}</th>
+                        <th>{{ _("Создан") }}</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in orders %}
+                    <tr>
+                        <td class="font-medium">{{ order.id | string | truncate(8, true, '') }}</td>
+                        <td>
+                            <span class="badge badge-sm {% if order.status == 'done' %}badge-success{% elif order.status == 'cancelled' %}badge-error{% elif order.status == 'confirmed' %}badge-info{% else %}badge-ghost{% endif %}">
+                                {{ order.status }}
+                            </span>
+                        </td>
+                        <td>{{ order.total }} ₽</td>
+                        <td>{{ order.execution_date or '—' }}</td>
+                        <td class="text-xs text-slate-400">{{ order.created_at.strftime('%d.%m.%Y %H:%M') if order.created_at else '—' }}{% if user_names.get(order.created_by) %} <span class="text-slate-300">· {{ user_names[order.created_by] }}</span>{% endif %}</td>
+                        <td>
+                            <a href="/app/{{ org_id }}/orders/{{ order.id }}" class="btn btn-ghost btn-xs">
+                                {{ _("Детали") }}
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% if next_cursor %}
+            <div class="text-center mt-4">
+                <button class="btn btn-outline btn-sm"
+                        hx-get="/app/{{ org_id }}/orders?cursor={{ next_cursor }}&limit=50"
+                        hx-target="#list-table-container"
+                        hx-swap="outerHTML">
+                    {{ _("Загрузить ещё") }}
+                </button>
+            </div>
+            {% endif %}
+        </div>
+        {% else %}
+        <div class="card bg-white/60 backdrop-blur-sm shadow-sm border border-slate-200">
+            <div class="card-body items-center text-center py-12">
+                <p class="text-slate-400 mb-4">{{ _("Нет заказов") }}</p>
+                <a href="/app/{{ org_id }}/orders/create" class="btn btn-primary btn-sm">
+                    {{ _("Создать первый заказ") }}
+                </a>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

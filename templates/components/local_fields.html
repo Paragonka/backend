@@ -1,0 +1,42 @@
+<div class="divider">{{ _("Дополнительные поля") }}</div>
+<div id="local-fields-container">
+    {% set fields = local_fields | default({}) %}
+    {% if fields | length == 0 %}
+    {% set tmp = fields.__setitem__('', '') %}
+    {% endif %}
+    {% for key, value in fields.items() %}
+    <div class="grid grid-cols-12 gap-2 items-end mb-2 local-field-row">
+        <div class="col-span-5">
+            <input type="text" name="lf_key" class="input input-bordered input-sm w-full" placeholder="{{ _("Название") }}" value="{{ key }}">
+        </div>
+        <div class="col-span-5">
+            <input type="text" name="lf_value" class="input input-bordered input-sm w-full" placeholder="{{ _("Значение") }}" value="{{ value }}">
+        </div>
+        <div class="col-span-2 flex gap-1 pb-1">
+            <button type="button" class="btn btn-ghost btn-xs" onclick="this.closest('.local-field-row').remove()">✕</button>
+            <button type="button" class="btn btn-ghost btn-xs" onclick="addLocalFieldRow()">+</button>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<script>
+function addLocalFieldRow() {
+    const container = document.getElementById('local-fields-container');
+    const div = document.createElement('div');
+    div.className = 'grid grid-cols-12 gap-2 items-end mb-2 local-field-row';
+    div.innerHTML = `
+        <div class="col-span-5">
+            <input type="text" name="lf_key" class="input input-bordered input-sm w-full" placeholder="{{ _("Название") }}">
+        </div>
+        <div class="col-span-5">
+            <input type="text" name="lf_value" class="input input-bordered input-sm w-full" placeholder="{{ _("Значение") }}">
+        </div>
+        <div class="col-span-2 flex gap-1 pb-1">
+            <button type="button" class="btn btn-ghost btn-xs" onclick="this.closest('.local-field-row').remove()">✕</button>
+            <button type="button" class="btn btn-ghost btn-xs" onclick="addLocalFieldRow()">+</button>
+        </div>
+    `;
+    container.appendChild(div);
+}
+</script>

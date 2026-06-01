@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+
+{% block title %}{{ _("Финансы") }} | Paragonka{% endblock %}
+
+{% block head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto">
+    <div class="flex items-center justify-between mb-6">
+        <h1 class="text-2xl font-bold text-slate-800">{{ _("Финансовая аналитика") }}</h1>
+        <div class="flex gap-2">
+            <a href="?months=3" class="btn btn-sm {{ 'btn-primary' if months == 3 else 'btn-ghost' }}">{{ _("3 мес") }}</a>
+            <a href="?months=6" class="btn btn-sm {{ 'btn-primary' if months == 6 else 'btn-ghost' }}">{{ _("6 мес") }}</a>
+            <a href="?months=12" class="btn btn-sm {{ 'btn-primary' if months == 12 else 'btn-ghost' }}">{{ _("12 мес") }}</a>
+            <a href="?months=24" class="btn btn-sm {{ 'btn-primary' if months == 24 else 'btn-ghost' }}">{{ _("24 мес") }}</a>
+        </div>
+    </div>
+
+    <div class="grid md:grid-cols-3 gap-6 mb-6">
+        <div class="card bg-white/60 backdrop-blur-sm shadow-sm border border-slate-200">
+            <div class="card-body text-center">
+                <h2 class="card-title text-sm text-slate-500 justify-center">{{ _("Доход") }}</h2>
+                <p class="text-3xl font-bold text-success">{{ "%.2f"|format(summary.total_revenue) }} ₽</p>
+                <p class="text-xs text-slate-400">{{ summary.from_month }} – {{ summary.to_month }}</p>
+            </div>
+        </div>
+        <div class="card bg-white/60 backdrop-blur-sm shadow-sm border border-slate-200">
+            <div class="card-body text-center">
+                <h2 class="card-title text-sm text-slate-500 justify-center">{{ _("Расход") }}</h2>
+                <p class="text-3xl font-bold text-error">{{ "%.2f"|format(summary.total_expenses) }} ₽</p>
+                <p class="text-xs text-slate-400">{{ summary.from_month }} – {{ summary.to_month }}</p>
+            </div>
+        </div>
+        <div class="card bg-white/60 backdrop-blur-sm shadow-sm border border-slate-200">
+            <div class="card-body text-center">
+                <h2 class="card-title text-sm text-slate-500 justify-center">{{ _("Прибыль (PnL)") }}</h2>
+                <p class="text-3xl font-bold {% if summary.total_pnl >= 0 %}text-success{% else %}text-error{% endif %}">
+                    {{ "%.2f"|format(summary.total_pnl) }} ₽
+                </p>
+                <p class="text-xs text-slate-400">{{ summary.from_month }} – {{ summary.to_month }}</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="card bg-white/60 backdrop-blur-sm shadow-sm border border-slate-200 mb-6">
+        <div class="card-body">
+            <h2 class="card-title mb-4">{{ _("Доходы и расходы по месяцам") }}</h2>
+            <canvas id="financeChart" height="80"></canvas>
+        </div>
+    </div>
+
+    <div class="card bg-white/60 backdrop-blur-sm shadow-sm border border-slate-200">
+        <div class="card-body">
+            <h2 class="card-title mb-4">{{ _("Детализация по месяцам") }}</h2>
+            <div class="overflow-x-auto">
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th>{{ _("Месяц") }}</th>
+                            <th class="text-right">{{ _("Доход") }}</th>
+                            <th class="text-right">{{ _("Расход") }}</th>
+                            <th class="text-right">{{ _("Прибыль") }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for m in summary.monthly %}
+                        <tr>
+                            <td>{{ m.month }}</td>
+                            <td class="text-right text-success">{{ "%.2f"|format(m.revenue) }} ₽</td>
+                            <td class="text-right text-error">{{ "%.2f"|format(m.expenses) }} ₽</td>
+                            <td class="text-right {% if m.pnl >= 0 %}text-success{% else %}text-error{% endif %} font-semibold">
+                                {{ "%.2f"|format(m.pnl) }} ₽
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const ctx = document.getElementById('financeChart').getContext('2d');
+    const months = {{ summary.monthly | map(attribute='month') | list | tojson }};
+    const revenue = {{ summary.monthly | map(attribute='revenue') | map('float') | list | tojson }};
+    const expenses = {{ summary.monthly | map(attribute='expenses') | map('float') | list | tojson }};
+    const pnl = {{ summary.monthly | map(attribute='pnl') | map('float') | list | tojson }};
+
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: months,
+            datasets: [
+                {
+                    label: '{{ _("Доход") }}',
+                    data: revenue,
+                    backgroundColor: 'rgba(34, 197, 94, 0.5)',
+                    borderColor: 'rgba(34, 197, 94, 1)',
+                    borderWidth: 1
+                },
+                {
+                    label: '{{ _("Расход") }}',
+                    data: expenses,
+                    backgroundColor: 'rgba(239, 68, 68, 0.5)',
+                    borderColor: 'rgba(239, 68, 68, 1)',
+                    borderWidth: 1
+                },
+                {
+                    label: '{{ _("Прибыль") }}',
+                    data: pnl,
+                    type: 'line',
+                    borderColor: 'rgba(59, 130, 246, 1)',
+                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                    fill: true,
+                    tension: 0.3,
+                    pointRadius: 4,
+                    pointBackgroundColor: 'rgba(59, 130, 246, 1)',
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            interaction: { mode: 'index', intersect: false },
+            plugins: {
+                legend: { position: 'top' }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) { return value.toLocaleString() + ' ₽'; }
+                    }
+                }
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

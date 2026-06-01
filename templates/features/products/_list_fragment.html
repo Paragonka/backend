@@ -1,0 +1,64 @@
+<div id="list-table-container" class="overflow-x-auto">
+    {% if products %}
+    <table class="table table-zebra bg-white/60 backdrop-blur-sm shadow-sm border border-slate-200 rounded-box">
+        <thead>
+            <tr>
+                <th>{{ _("Название") }}</th>
+                <th>{{ _("Категория") }}</th>
+                <th>{{ _("Тип") }}</th>
+                <th>{{ _("Цена") }}</th>
+                <th>{{ _("Себест.") }}</th>
+                <th>{{ _("Ед.") }}</th>
+                <th>{{ _("Остаток") }}</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for product in products %}
+            <tr>
+                <td class="font-medium">{{ product.name }}</td>
+                <td>{{ product.category or '—' }}</td>
+                <td>{{ product.product_type }}</td>
+                <td>{{ product.price }} ₽</td>
+                <td>{{ product.cost_price }} ₽</td>
+                <td>{{ product.unit }}</td>
+                <td>{% if product.stock_qty is not none %}{{ product.stock_qty }}{% else %}—{% endif %}</td>
+                <td class="flex gap-1">
+                    <button class="btn btn-ghost btn-xs"
+                            hx-get="/app/{{ org_id }}/products/{{ product.id }}/edit-form"
+                            hx-target="#edit-modal-body"
+                            hx-trigger="click"
+                            onclick="document.getElementById('edit-modal').showModal()">
+                        Edit
+                    </button>
+                    <form method="post" action="/app/{{ org_id }}/products/{{ product.id }}/delete" style="display:inline">
+                        <button class="btn btn-ghost btn-xs text-error" onclick="return confirm('{{ _("Удалить продукт?") }}')">
+                            {{ _("Удалить") }}
+                        </button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% if next_cursor %}
+    <div class="text-center mt-4">
+        <button class="btn btn-outline btn-sm"
+                hx-get="{{ request.url.path }}?cursor={{ next_cursor }}&limit=50"
+                hx-target="#list-table-container"
+                hx-swap="outerHTML">
+            {{ _("Загрузить ещё") }}
+        </button>
+    </div>
+    {% endif %}
+    {% else %}
+    <div class="card bg-white/60 backdrop-blur-sm shadow-sm border border-slate-200">
+        <div class="card-body items-center text-center py-12">
+            <p class="text-slate-400 mb-4">{{ _("Нет продуктов") }}</p>
+            <button class="btn btn-primary btn-sm" onclick="document.getElementById('create-modal').showModal()">
+                {{ _("Добавить первый продукт") }}
+            </button>
+        </div>
+    </div>
+    {% endif %}
+</div>

@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}{{ _("400 — Неверный запрос") }} | Paragonka{% endblock %}
+{% block content %}
+<div class="max-w-lg mx-auto text-center py-16">
+    <h1 class="text-6xl font-bold text-info mb-4">400</h1>
+    <p class="text-xl text-slate-500 mb-8">{{ _("Неверный запрос") }}</p>
+    <p class="text-sm text-slate-400 mb-8">{{ _("Проверьте введённые данные и попробуйте снова") }}</p>
+    <a href="/" class="btn btn-primary">{{ _("На главную") }}</a>
+</div>
+{% endblock %}

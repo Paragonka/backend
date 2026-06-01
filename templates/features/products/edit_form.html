@@ -1,0 +1,62 @@
+<form method="post" enctype="multipart/form-data" action="/app/{{ org_id }}/products/{{ product.id }}/edit" class="space-y-4">
+    <div>
+        <label class="label"><span class="label-text">{{ _("Название *") }}</span></label>
+        <input type="text" name="name" required class="input input-bordered w-full" value="{{ product.name }}">
+    </div>
+    <div>
+        <label class="label"><span class="label-text">{{ _("Категория") }}</span></label>
+        <input type="text" name="category" class="input input-bordered w-full" value="{{ product.category }}">
+    </div>
+    <div>
+        <label class="label"><span class="label-text">{{ _("Тип продукта") }}</span></label>
+        <select name="product_type" class="select select-bordered w-full">
+            <option value="good" {% if product.product_type == 'good' %}selected{% endif %}>{{ _("Товар") }}</option>
+            <option value="service" {% if product.product_type == 'service' %}selected{% endif %}>{{ _("Услуга") }}</option>
+            <option value="material" {% if product.product_type == 'material' %}selected{% endif %}>{{ _("Сырьё / Материал") }}</option>
+        </select>
+    </div>
+    <div class="grid grid-cols-3 gap-4">
+        <div>
+            <label class="label"><span class="label-text">{{ _("Цена") }}</span></label>
+            <input type="number" step="0.01" name="price" class="input input-bordered w-full" value="{{ product.price }}">
+        </div>
+        <div>
+            <label class="label"><span class="label-text">{{ _("Себестоимость") }}</span></label>
+            <input type="number" step="0.01" name="cost_price" class="input input-bordered w-full" value="{{ product.cost_price }}">
+        </div>
+        <div>
+            <label class="label"><span class="label-text">{{ _("Ед. изм.") }}</span></label>
+            <input type="text" name="unit" class="input input-bordered w-full" value="{{ product.unit }}">
+        </div>
+    </div>
+    <div class="grid grid-cols-2 gap-4">
+        <div>
+            <label class="label"><span class="label-text">{{ _("Остаток") }}</span></label>
+            <input type="number" step="0.01" name="stock_qty" class="input input-bordered w-full" value="{{ product.stock_qty or '' }}">
+        </div>
+        <div class="flex items-end pb-2">
+            <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" name="track_inventory" class="checkbox checkbox-primary" {% if product.track_inventory %}checked{% endif %}>
+                <span class="label-text">{{ _("Учитывать остаток") }}</span>
+            </label>
+        </div>
+    </div>
+    <div class="flex items-center gap-2">
+        <label class="flex items-center gap-2 cursor-pointer">
+            <input type="checkbox" name="is_sellable" class="checkbox checkbox-primary" {% if product.is_sellable %}checked{% endif %}>
+            <span class="label-text">{{ _("Продаваемый") }}</span>
+        </label>
+        <label class="flex items-center gap-2 cursor-pointer">
+            <input type="checkbox" name="is_active" class="checkbox checkbox-primary" {% if product.is_active %}checked{% endif %}>
+            <span class="label-text">{{ _("Активный") }}</span>
+        </label>
+    </div>
+    {% include "components/local_fields.html" %}
+    {% set exclude_product_id = product.id %}
+    {% include "components/product_components.html" %}
+    {% include "components/photos.html" %}
+    <div class="flex gap-2 pt-2">
+        <button type="submit" class="btn btn-primary">{{ _("Сохранить") }}</button>
+        <button type="button" class="btn btn-ghost" onclick="document.getElementById('edit-modal').close()">{{ _("Отмена") }}</button>
+    </div>
+</form>

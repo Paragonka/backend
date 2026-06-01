@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}{{ _("Вход") }} | Paragonka{% endblock %}
+
+{% block content %}
+<div class="min-h-[80vh] flex items-center justify-center">
+    <div class="card w-full max-w-md bg-white/60 backdrop-blur-sm shadow-sm border border-slate-200">
+        <div class="card-body p-8">
+            <h1 class="text-2xl font-bold text-center text-slate-800 mb-2">{{ _("Вход в Paragonka") }}</h1>
+            <p class="text-center text-slate-400 text-sm mb-6">{{ _("Войдите в свой аккаунт") }}</p>
+
+            {% if error %}
+            <div class="alert alert-error mb-4 text-sm">{{ error }}</div>
+            {% endif %}
+
+            <form method="POST" action="/app/auth/login" class="space-y-4">
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text">Email</span>
+                    </label>
+                    <input type="email" name="email" class="input input-bordered w-full" placeholder="email@example.com" required />
+                </div>
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text">{{ _("Пароль") }}</span>
+                    </label>
+                    <input type="password" name="password" class="input input-bordered w-full" placeholder="••••••••" required />
+                </div>
+                <button type="submit" class="btn btn-primary w-full">{{ _("Войти") }}</button>
+            </form>
+
+            <p class="text-center text-sm text-slate-400 mt-4">
+                <a href="/app/auth/forgot-password" class="text-primary hover:underline">{{ _("Забыли пароль?") }}</a>
+            </p>
+
+            <p class="text-center text-sm text-slate-400 mt-2">
+                {{ _("Нет аккаунта?") }} <a href="/app/auth/register" class="text-primary hover:underline">{{ _("Зарегистрироваться") }}</a>
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

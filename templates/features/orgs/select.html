@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block title %}{{ _("Выбор организации") }} | Paragonka{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+    <div class="flex items-center justify-between mb-6">
+        <h1 class="text-2xl font-bold text-slate-800">{{ _("Ваши организации") }}</h1>
+        <button class="btn btn-primary" onclick="org_create_modal.showModal()">
+            + {{ _("Создать") }}
+        </button>
+    </div>
+
+    {% if orgs %}
+    <div class="grid gap-4">
+        {% for org in orgs %}
+        <a href="/app/{{ org.id }}/dashboard"
+           class="card bg-white/60 backdrop-blur-sm shadow-sm border border-slate-200 hover:shadow-md hover:border-primary/30 transition-all">
+            <div class="card-body p-5 flex-row items-center gap-4">
+                <div class="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary font-bold text-lg">
+                    {{ org.name[:2].upper() }}
+                </div>
+                <div>
+                    <h2 class="text-lg font-semibold text-slate-800">{{ org.name }}</h2>
+                    <p class="text-sm text-slate-400">{{ org.timezone }}</p>
+                </div>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center py-16 text-slate-400">
+        <p class="text-lg mb-2">{{ _("У вас пока нет организаций") }}</p>
+        <p class="text-sm">{{ _("Создайте первую, чтобы начать работу") }}</p>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Create org modal -->
+<dialog id="org_create_modal" class="modal">
+    <div class="modal-box bg-white">
+        <h3 class="font-bold text-lg mb-4">{{ _("Создать организацию") }}</h3>
+        <form method="POST" action="/app/orgs/create" class="space-y-4">
+            <div class="form-control">
+                <label class="label">
+                    <span class="label-text">{{ _("Название") }}</span>
+                </label>
+                <input type="text" name="name" class="input input-bordered w-full" placeholder="{{ _("Моя кондитерская") }}" required />
+            </div>
+            <div class="form-control">
+                <label class="label">
+                    <span class="label-text">{{ _("Часовой пояс") }}</span>
+                </label>
+                <select name="timezone" class="select select-bordered w-full">
+                    <option value="UTC">UTC</option>
+                    <option value="Europe/Moscow">Europe/Moscow</option>
+                    <option value="Europe/Warsaw">Europe/Warsaw</option>
+                </select>
+            </div>
+            <div class="modal-action">
+                <button type="button" class="btn" onclick="org_create_modal.close()">{{ _("Отмена") }}</button>
+                <button type="submit" class="btn btn-primary">{{ _("Создать") }}</button>
+            </div>
+        </form>
+    </div>
+    <form method="dialog" class="modal-backdrop">
+        <button>close</button>
+    </form>
+</dialog>
+{% endblock %}

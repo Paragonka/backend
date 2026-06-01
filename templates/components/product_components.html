@@ -1,0 +1,60 @@
+<div class="divider">{{ _("Состав продукта") }}</div>
+<p class="text-sm text-slate-500 mb-2">{{ _("Укажите продукты и количество для изготовления") }}</p>
+
+<div id="product-components-list" class="space-y-2">
+    {% for component in product_components | default([]) %}
+    <div class="product-component-row grid grid-cols-[1fr_8rem_auto] gap-2 items-end">
+        <label>
+            <span class="label-text text-xs">{{ _("Продукт") }}</span>
+            <select name="component_product_id" class="select select-bordered select-sm w-full" required>
+                <option value="">{{ _("Выберите продукт") }}</option>
+                {% for available_product in products | default([]) %}
+                {% if available_product.id != exclude_product_id %}
+                <option value="{{ available_product.id }}" {% if available_product.id == component.component_id %}selected{% endif %}>{{ available_product.name }}</option>
+                {% endif %}
+                {% endfor %}
+            </select>
+        </label>
+        <label>
+            <span class="label-text text-xs">{{ _("Количество") }}</span>
+            <input type="number" name="component_quantity" min="0.0001" step="0.0001" required
+                   value="{{ component.quantity }}" class="input input-bordered input-sm w-full">
+        </label>
+        <button type="button" class="btn btn-ghost btn-sm text-error" onclick="this.closest('.product-component-row').remove()">✕</button>
+    </div>
+    {% endfor %}
+</div>
+
+<button type="button" class="btn btn-outline btn-sm mt-2" onclick="addProductComponent()">
+    + {{ _("Добавить продукт") }}
+</button>
+
+<template id="product-component-template">
+    <div class="product-component-row grid grid-cols-[1fr_8rem_auto] gap-2 items-end">
+        <label>
+            <span class="label-text text-xs">{{ _("Продукт") }}</span>
+            <select name="component_product_id" class="select select-bordered select-sm w-full" required>
+                <option value="">{{ _("Выберите продукт") }}</option>
+                {% for available_product in products | default([]) %}
+                {% if available_product.id != exclude_product_id %}
+                <option value="{{ available_product.id }}">{{ available_product.name }}</option>
+                {% endif %}
+                {% endfor %}
+            </select>
+        </label>
+        <label>
+            <span class="label-text text-xs">{{ _("Количество") }}</span>
+            <input type="number" name="component_quantity" min="0.0001" step="0.0001" required
+                   class="input input-bordered input-sm w-full">
+        </label>
+        <button type="button" class="btn btn-ghost btn-sm text-error" onclick="this.closest('.product-component-row').remove()">✕</button>
+    </div>
+</template>
+
+<script>
+function addProductComponent() {
+    const template = document.getElementById('product-component-template');
+    const list = document.getElementById('product-components-list');
+    if (template && list) list.appendChild(template.content.cloneNode(true));
+}
+</script>

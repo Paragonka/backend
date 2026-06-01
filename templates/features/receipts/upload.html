@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block title %}{{ _("Загрузить JPK-чек") }} | Paragonka{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+    <div class="flex items-center justify-between mb-6">
+        <h1 class="text-2xl font-bold text-slate-800">{{ _("Загрузить JPK-чек") }}</h1>
+        <a href="/app/{{ org_id }}/receipts" class="btn btn-ghost btn-sm">← {{ _("Назад") }}</a>
+    </div>
+
+    <div class="card bg-white/60 backdrop-blur-sm shadow-sm border border-slate-200">
+        <div class="card-body">
+            <div class="mb-4 text-sm text-slate-500 space-y-1">
+                <p>{{ _("Поддерживаются чеки магазинов в формате") }} <strong>JPK_KASA</strong>:</p>
+                <ul class="list-disc list-inside ml-2">
+                    <li>{{ _("Biedronka (и другие сети Польши)") }}</li>
+                    <li>{{ _("Формат: JSON-файл") }}</li>
+                </ul>
+            </div>
+
+            <form method="post"
+                  action="/app/{{ org_id }}/receipts/upload-jpk"
+                  enctype="multipart/form-data"
+                  hx-encoding="multipart/form-data"
+                  hx-post="/app/{{ org_id }}/receipts/upload-jpk"
+                  hx-target="#upload-result"
+                  hx-swap="innerHTML"
+                  class="space-y-4">
+
+                <div class="border-2 border-dashed border-slate-300 rounded-xl p-8 text-center hover:border-primary/50 transition-colors cursor-pointer"
+                     id="drop-zone"
+                     ondragover="event.preventDefault(); this.classList.add('border-primary')"
+                     ondragleave="this.classList.remove('border-primary')"
+                     ondrop="event.preventDefault(); this.classList.remove('border-primary'); const f=event.dataTransfer.files[0]; if(f) document.getElementById('jpk-file').files = event.dataTransfer.files; document.getElementById('file-label').textContent = f.name;">
+                    <svg class="w-12 h-12 mx-auto text-slate-300 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                    </svg>
+                    <p class="text-slate-500 mb-2">{{ _("Перетащите JSON-файл чека сюда") }}</p>
+                    <p class="text-xs text-slate-400 mb-4">{{ _("или") }}</p>
+                    <label for="jpk-file" class="btn btn-primary btn-sm" id="file-label">{{ _("Выбрать файл") }}</label>
+                    <input type="file" id="jpk-file" name="file" accept=".json,application/json" class="hidden"
+                           onchange="document.getElementById('file-label').textContent = this.files[0]?.name || '{{ _("Выбрать файл") }}'" />
+                </div>
+
+                <button type="submit" class="btn btn-primary w-full">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
+                    {{ _("Загрузить и разобрать") }}
+                </button>
+            </form>
+
+            <div id="upload-result" class="mt-4"></div>
+        </div>
+    </div>
+
+    <div class="mt-6 card bg-white/60 backdrop-blur-sm shadow-sm border border-slate-200">
+        <div class="card-body">
+            <h2 class="card-title text-sm">{{ _("Пример структуры чека") }}</h2>
+            <pre class="text-xs bg-slate-50 p-3 rounded-lg overflow-x-auto mt-2"><code>{
+  "header": { "tin": "1234567890" },
+  "body": [
+    { "type": "sellLine", "name": "Chleb", "price": 500, "quantity": 1 },
+    { "type": "discountLine", "value": 100 },
+    { "type": "sellLine", "name": "Mleko", "price": 350, "quantity": 2 }
+  ]
+}</code></pre>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('jpk-file')?.addEventListener('change', function() {
+    const label = document.getElementById('file-label');
+    if (this.files[0]) {
+        label.textContent = this.files[0].name;
+    }
+});
+</script>
+{% endblock %}

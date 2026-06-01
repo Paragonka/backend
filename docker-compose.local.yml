@@ -1,0 +1,67 @@
+services:
+  web:
+    build:
+      context: .
+      args:
+        - PORT=8000
+    environment:
+      - ENVIRONMENT=development
+      - LOG_LEVEL=DEBUG
+      - GRANIAN_HOST=0.0.0.0
+      - GRANIAN_PORT=8000
+      - WORKERS=1
+      - DATABASE_URL=postgresql+asyncpg://user:password@db:5432/paragonka_db
+      - SECRET_KEY=dev-secret
+    ports:
+      - "8000:8000"
+    command: ["sh", "-c", "granian --interface asgi --host 0.0.0.0 --port ${GRANIAN_PORT:-8000} --workers ${WORKERS:-1} app.main:app"]
+    volumes:
+      - ./:/app:delegated
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  minio:
+    image: minio/minio:latest
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    command: server /data --console-address ":9001"
+    volumes:
+      - minio_data:/data
+
+  db:
+    build:
+      context: ../db
+    restart: always
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: paragonka_db
+    command:
+      - postgres
+      - -c
+      - shared_preload_libraries=pg_cron
+      - -c
+      - cron.database_name=paragonka_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d paragonka_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  pgdata:
+  minio_data:

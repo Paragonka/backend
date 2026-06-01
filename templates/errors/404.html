@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block title %}{{ _("404 — Страница не найдена") }} | Paragonka{% endblock %}
+
+{% block content %}
+<div class="max-w-lg mx-auto text-center py-16">
+    <h1 class="text-6xl font-bold text-primary mb-4">404</h1>
+    <p class="text-xl text-slate-500 mb-8">{{ _("Страница не найдена") }}</p>
+    <a href="/" class="btn btn-primary">{{ _("На главную") }}</a>
+</div>
+{% endblock %}

@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}{{ _("Импорт продуктов") }} | Paragonka{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+    <div class="flex items-center justify-between mb-6">
+        <h1 class="text-2xl font-bold text-slate-800">{{ _("Импорт продуктов из CSV") }}</h1>
+        <a href="/app/{{ org_id }}/products" class="btn btn-ghost btn-sm">← {{ _("Назад") }}</a>
+    </div>
+
+    <div class="card bg-white/60 backdrop-blur-sm shadow-sm border border-slate-200 mb-4">
+        <div class="card-body">
+            <h2 class="card-title text-sm mb-2">{{ _("Формат CSV") }}</h2>
+            <p class="text-sm text-slate-500 mb-2">{{ _("Заголовки:") }} <code>name, category, unit, product_type, price, cost_price, stock_qty, track_inventory, is_sellable, is_active</code></p>
+            <div class="text-xs text-slate-400 mb-4">{{ _("Максимум 5000 строк, размер до 5 MB") }}</div>
+
+            <form method="post" enctype="multipart/form-data" class="space-y-4"
+                  hx-post="/app/{{ org_id }}/products/import"
+                  hx-target="#import-result"
+                  hx-encoding="multipart/form-data"
+                  id="import-form">
+                <div class="border-2 border-dashed border-slate-300 rounded-lg p-8 text-center hover:border-primary transition-colors cursor-pointer"
+                     onclick="document.getElementById('file-input').click()">
+                    <svg class="w-10 h-10 mx-auto text-slate-400 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                    </svg>
+                    <p class="text-sm text-slate-500">{{ _("Нажмите, чтобы выбрать файл") }}</p>
+                    <input id="file-input" type="file" name="file" accept=".csv" class="hidden"
+                           onchange="document.getElementById('import-form').querySelector('button[type=submit]').click()">
+                </div>
+                <button type="submit" class="btn btn-primary w-full">{{ _("Загрузить и импортировать") }}</button>
+            </form>
+
+            <div id="import-result" class="mt-4">
+                {% if result %}
+                <div class="space-y-4">
+                    <div class="alert {% if result.errors %}alert-warning{% else %}alert-success{% endif %}">
+                        <span>{{ _("Импортировано:") }} <strong>{{ result.imported }}</strong>
+                        {% if result.errors %}{{ _(", ошибок:") }} <strong>{{ result.errors | length }}</strong>{% endif %}</span>
+                    </div>
+                    {% if result.errors %}
+                    <div class="overflow-x-auto">
+                        <table class="table table-zebra table-sm">
+                            <thead>
+                                <tr>
+                                    <th>{{ _("Строка") }}</th>
+                                    <th>{{ _("Ошибка") }}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for err in result.errors %}
+                                <tr>
+                                    <td>{{ err.row }}</td>
+                                    <td class="text-error">{{ err.error }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% endif %}
+                    <div class="flex gap-2">
+                        <a href="/app/{{ org_id }}/products" class="btn btn-primary btn-sm">{{ _("К списку продуктов") }}</a>
+                        <a href="/app/{{ org_id }}/products/import" class="btn btn-ghost btn-sm">{{ _("Импортировать ещё") }}</a>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

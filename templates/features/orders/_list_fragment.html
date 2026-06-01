@@ -1,0 +1,53 @@
+<div id="list-table-container" class="overflow-x-auto">
+    {% if orders %}
+    <table class="table table-zebra bg-white/60 backdrop-blur-sm shadow-sm border border-slate-200 rounded-box">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>{{ _("Статус") }}</th>
+                <th>{{ _("Сумма") }}</th>
+                <th>{{ _("Дата исполнения") }}</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for order in orders %}
+            <tr>
+                <td class="font-medium">{{ order.id | string | truncate(8, true, '') }}</td>
+                <td>
+                    <span class="badge badge-sm {% if order.status == 'done' %}badge-success{% elif order.status == 'cancelled' %}badge-error{% elif order.status == 'confirmed' %}badge-info{% else %}badge-ghost{% endif %}">
+                        {{ order.status }}
+                    </span>
+                </td>
+                <td>{{ order.total }} ₽</td>
+                <td>{{ order.execution_date or '—' }}</td>
+                <td>
+                    <a href="/app/{{ org_id }}/orders/{{ order.id }}" class="btn btn-ghost btn-xs">
+                        {{ _("Детали") }}
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% if next_cursor %}
+    <div class="text-center mt-4">
+        <button class="btn btn-outline btn-sm"
+                hx-get="{{ request.url.path }}?cursor={{ next_cursor }}&limit=50"
+                hx-target="#list-table-container"
+                hx-swap="outerHTML">
+            {{ _("Загрузить ещё") }}
+        </button>
+    </div>
+    {% endif %}
+    {% else %}
+    <div class="card bg-white/60 backdrop-blur-sm shadow-sm border border-slate-200">
+        <div class="card-body items-center text-center py-12">
+            <p class="text-slate-400 mb-4">{{ _("Нет заказов") }}</p>
+            <a href="/app/{{ org_id }}/orders/create" class="btn btn-primary btn-sm">
+                {{ _("Создать первый заказ") }}
+            </a>
+        </div>
+    </div>
+    {% endif %}
+</div>

@@ -1,0 +1,51 @@
+<div class="p-4">
+    <div class="flex justify-between items-start mb-4">
+        <div>
+            <h3 class="font-bold text-lg">{{ _("Заказ") }}</h3>
+            <p class="text-xs text-slate-400 font-mono">{{ order.id }}</p>
+        </div>
+        <span class="badge {% if order.status == 'done' %}badge-success{% elif order.status == 'cancelled' %}badge-error{% elif order.status == 'confirmed' %}badge-info{% else %}badge-ghost{% endif %}">
+            {{ order.status }}
+        </span>
+    </div>
+    <div class="grid grid-cols-2 gap-3 text-sm mb-4">
+        <div>
+            <span class="text-slate-400">{{ _("Сумма") }}</span>
+            <p class="font-semibold">{{ order.total }} ₽</p>
+        </div>
+        <div>
+            <span class="text-slate-400">{{ _("Дата") }}</span>
+            <p>{{ order.execution_date or '—' }}</p>
+        </div>
+        <div>
+            <span class="text-slate-400">{{ _("Клиент") }}</span>
+            <p>{{ client_name or '—' }}</p>
+        </div>
+        <div>
+            <span class="text-slate-400">{{ _("Заметки") }}</span>
+            <p class="truncate">{{ order.notes or '—' }}</p>
+        </div>
+    </div>
+    <h4 class="font-semibold text-sm mb-2">{{ _("Позиции") }}</h4>
+    <table class="table table-xs">
+        <thead>
+            <tr><th>{{ _("Название") }}</th><th>{{ _("Цена") }}</th><th>{{ _("Кол-во") }}</th><th>{{ _("Сумма") }}</th></tr>
+        </thead>
+        <tbody>
+            {% for item in items %}
+            <tr>
+                <td>{{ item.name }}</td>
+                <td>{{ item.price }}</td>
+                <td>{{ item.qty }}</td>
+                <td>{{ item.price * item.qty }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <div class="modal-action">
+        <a href="/app/{{ org_id }}/orders/{{ order.id }}" class="btn btn-primary btn-sm">{{ _("Открыть") }}</a>
+        <form method="dialog">
+            <button class="btn btn-ghost btn-sm">{{ _("Закрыть") }}</button>
+        </form>
+    </div>
+</div>

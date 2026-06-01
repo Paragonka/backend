@@ -1,0 +1,15 @@
+# Python
+.venv/
+venv/
+ENV/
+**/__pycache__/
+*.pyc
+.jinja_cache/
+
+# Dotfiles: ignore by default, allowlist explicitly
+.*
+!.gitignore
+!.env.example
+!.devcontainer/
+!.devcontainer/**
+!static/.gitkeep

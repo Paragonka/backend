@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block title %}{{ _("Чеки") }} | Paragonka{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto">
+    <div class="flex items-center justify-between mb-6">
+        <h1 class="text-2xl font-bold text-slate-800">{{ _("Чеки") }}</h1>
+        <div class="flex gap-2">
+            <a href="/app/{{ org_id }}/receipts/upload" class="btn btn-secondary btn-sm">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" /></svg>
+                JPK
+            </a>
+            <a href="/app/{{ org_id }}/receipts/create" class="btn btn-primary btn-sm">
+                + {{ _("Новый чек") }}
+            </a>
+        </div>
+    </div>
+
+    {% if filter_fields %}
+    {% include "components/filter.html" %}
+    {% endif %}
+
+    <div id="list-table-container">
+        {% if receipts %}
+        <div class="overflow-x-auto">
+            <table class="table table-zebra bg-white/60 backdrop-blur-sm shadow-sm border border-slate-200 rounded-box">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>{{ _("Дата") }}</th>
+                        <th>{{ _("Сумма") }}</th>
+                        <th>{{ _("Источник") }}</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for receipt in receipts %}
+                    <tr>
+                        <td class="font-medium">{{ receipt.id | string | truncate(8, true, '') }}</td>
+                        <td>{{ receipt.receipt_date or '—' }}</td>
+                        <td>{{ receipt.total }} ₽</td>
+                        <td>{{ receipt.source or '—' }}</td>
+                        <td>
+                            <a href="/app/{{ org_id }}/receipts/{{ receipt.id }}" class="btn btn-ghost btn-xs">
+                                {{ _("Детали") }}
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% if next_cursor %}
+            <div class="text-center mt-4">
+                <button class="btn btn-outline btn-sm"
+                        hx-get="/app/{{ org_id }}/receipts?cursor={{ next_cursor }}&limit=50"
+                        hx-target="#list-table-container"
+                        hx-swap="outerHTML">
+                    {{ _("Загрузить ещё") }}
+                </button>
+            </div>
+            {% endif %}
+        </div>
+        {% else %}
+        <div class="card bg-white/60 backdrop-blur-sm shadow-sm border border-slate-200">
+            <div class="card-body items-center text-center py-12">
+                <p class="text-slate-400 mb-4">{{ _("Нет чеков") }}</p>
+                <div class="flex gap-2">
+                    <a href="/app/{{ org_id }}/receipts/upload" class="btn btn-secondary btn-sm">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" /></svg>
+                        {{ _("Загрузить JPK") }}
+                    </a>
+                    <a href="/app/{{ org_id }}/receipts/create" class="btn btn-primary btn-sm">
+                        {{ _("Создать первый чек") }}
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

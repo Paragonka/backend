@@ -1,0 +1,23 @@
+<form method="post" action="/app/{{ org_id }}/clients/{{ client.id }}/edit" class="space-y-4">
+    <div>
+        <label class="label"><span class="label-text">{{ _("Имя") }} *</span></label>
+        <input type="text" name="name" required class="input input-bordered w-full" value="{{ client.name }}">
+    </div>
+    <div>
+        <label class="label"><span class="label-text">{{ _("Фамилия") }}</span></label>
+        <input type="text" name="surname" class="input input-bordered w-full" value="{{ client.surname }}">
+    </div>
+    <div>
+        <label class="label"><span class="label-text">{{ _("Телефон") }}</span></label>
+        <input type="text" name="phone" class="input input-bordered w-full" value="{{ client.phone }}">
+    </div>
+    <div>
+        <label class="label"><span class="label-text">{{ _("Заметки") }}</span></label>
+        <textarea name="notes" class="textarea textarea-bordered w-full" rows="3">{{ client.notes }}</textarea>
+    </div>
+    {% include "components/local_fields.html" %}
+    <div class="flex gap-2 pt-2">
+        <button type="submit" class="btn btn-primary">{{ _("Сохранить") }}</button>
+        <button type="button" class="btn btn-ghost" onclick="document.getElementById('edit-modal').close()">{{ _("Отмена") }}</button>
+    </div>
+</form>

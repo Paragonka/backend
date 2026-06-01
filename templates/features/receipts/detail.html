@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block title %}{{ _("Чек") }} | Paragonka{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto">
+    <div class="flex items-center justify-between mb-6">
+        <h1 class="text-2xl font-bold text-slate-800">{{ _("Чек") }}</h1>
+        <a href="/app/{{ org_id }}/receipts" class="btn btn-ghost btn-sm">← {{ _("Назад") }}</a>
+    </div>
+
+    <div class="card bg-white/60 backdrop-blur-sm shadow-sm border border-slate-200 mb-4">
+        <div class="card-body">
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <span class="text-sm text-slate-400">{{ _("Дата") }}</span>
+                    <p class="font-medium">{{ receipt.receipt_date or '—' }}</p>
+                </div>
+                <div>
+                    <span class="text-sm text-slate-400">{{ _("Сумма") }}</span>
+                    <p class="font-bold text-lg">{{ receipt.total }} ₽</p>
+                </div>
+                <div>
+                    <span class="text-sm text-slate-400">{{ _("Источник") }}</span>
+                    <p>{{ receipt.source or '—' }}</p>
+                </div>
+                <div>
+                    <span class="text-sm text-slate-400">{{ _("Заметки") }}</span>
+                    <p>{{ receipt.notes or '—' }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card bg-white/60 backdrop-blur-sm shadow-sm border border-slate-200 mb-4">
+        <div class="card-body">
+            <h2 class="card-title text-lg mb-2">{{ _("Позиции") }}</h2>
+            <table class="table table-sm">
+                <thead>
+                    <tr>
+                        <th>{{ _("Название") }}</th>
+                        <th>{{ _("Цена") }}</th>
+                        <th>{{ _("Кол-во") }}</th>
+                        <th>{{ _("Сумма") }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in items %}
+                    <tr>
+                        <td>{{ item.name }}</td>
+                        <td>{{ item.price }} ₽</td>
+                        <td>{{ item.qty }}</td>
+                        <td class="font-medium">{{ item.price * item.qty }} ₽</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <div class="divider"></div>
+            <div class="flex justify-end">
+                <span class="text-lg font-bold">{{ _("Итого:") }} {{ receipt.total }} ₽</span>
+            </div>
+            {% if not items %}
+            <p class="text-sm text-slate-400 text-center py-4">{{ _("Нет позиций") }}</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="flex gap-2">
+        <form method="post" action="/app/{{ org_id }}/receipts/{{ receipt.id }}/delete" onsubmit="return confirm('{{ _("Удалить чек?") }}')">
+            <button class="btn btn-error btn-sm">{{ _("Удалить") }}</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

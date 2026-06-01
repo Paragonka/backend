@@ -1,0 +1,75 @@
+<div class="divider">{{ _("Фотографии") }}</div>
+<div class="grid grid-cols-5 gap-2 mb-3" id="photos-container">
+    {% for photo in photos | default([]) %}
+    <div class="relative group photo-item">
+        <img src="/api/v1/media/{{ photo }}?org_id={{ org_id }}" class="w-full h-20 object-cover rounded-lg border">
+        <button type="button" class="absolute top-1 right-1 btn btn-xs btn-circle btn-error opacity-0 group-hover:opacity-100 transition-opacity"
+                onclick="deletePhoto(this, '{{ photo }}')">✕</button>
+    </div>
+    {% endfor %}
+    {% if (photos | default([])) | length < 5 %}
+    <div class="border-2 border-dashed border-slate-300 rounded-lg h-20 flex items-center justify-center cursor-pointer hover:border-primary transition-colors"
+         onclick="document.getElementById('photo-input').click()">
+        <svg class="w-6 h-6 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+        </svg>
+    </div>
+    <input type="file" id="photo-input" name="photos" accept="image/jpeg,image/png,image/webp" multiple class="hidden"
+           onchange="uploadPhoto(this)">
+    {% endif %}
+</div>
+
+<script>
+function uploadPhoto(input) {
+    const files = Array.from(input.files || []);
+    if (!files.length) return;
+    const url = window.location.pathname;
+    // A product does not have an id until the create form is submitted. Keep
+    // selected files in the multipart form; the server uploads them after
+    // creating the entity.
+    if (/\/(clients|products|orders)\/create\/?$/.test(url)) return;
+    const entityMatch = url.match(/\/(clients|products|orders)\/([^/]+)/);
+    const orgMatch = url.match(/\/app\/([^/]+)/);
+    if (!entityMatch) return;
+    const entityType = entityMatch[1];
+    const entityId = entityMatch[2];
+    const orgId = orgMatch ? orgMatch[1] : '';
+
+    files.forEach(file => {
+        const formData = new FormData();
+        formData.append('file', file);
+
+        fetch('/api/v1/media/upload/' + entityType + '/' + entityId + '?org_id=' + encodeURIComponent(orgId), {
+            method: 'POST',
+            body: formData,
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.key) {
+                const container = document.getElementById('photos-container');
+                const div = document.createElement('div');
+                div.className = 'relative group photo-item';
+                div.innerHTML = '<img src="/api/v1/media/' + data.key + '?org_id=' + encodeURIComponent(orgId) + '" class="w-full h-20 object-cover rounded-lg border">' +
+                    '<button type="button" class="absolute top-1 right-1 btn btn-xs btn-circle btn-error opacity-0 group-hover:opacity-100 transition-opacity" onclick="deletePhoto(this, \'' + data.key + '\')">✕</button>';
+                container.insertBefore(div, container.lastElementChild);
+            }
+        });
+    });
+    input.value = '';
+}
+
+function deletePhoto(btn, key) {
+    if (!confirm('{{ _("Удалить фото?") }}')) return;
+    const url = window.location.pathname;
+    const orgMatch = url.match(/\/app\/([^/]+)/);
+    const orgId = orgMatch ? orgMatch[1] : '';
+    fetch('/api/v1/media/' + key + '?org_id=' + encodeURIComponent(orgId), { method: 'DELETE' })
+    .then(r => {
+        if (r.ok) {
+            btn.closest('.photo-item').remove();
+        } else {
+            alert('{{ _("Ошибка удаления") }}');
+        }
+    });
+}
+</script>
